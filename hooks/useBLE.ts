@@ -6,6 +6,7 @@ import * as ExpoDevice from "expo-device";
 
 import { BleError, BleManager, Characteristic, Device } from "react-native-ble-plx";
 
+import { HeadingModeProto, SetHeadingOptionsProto } from "@/protos/options_def";
 import { Buffer } from "buffer";
 
 function base64ToByteArray(base64: string): Uint8Array {
@@ -22,6 +23,7 @@ const SOG_CHARACTERISTIC_UUID = "c24848da-81ac-4c14-a72d-b124ae44f9f2";
 
 const AUTOPILOT_SERVICE_UUID = "fc7de86b-25a9-4701-a808-642cd57c6e45";
 const SET_ANCHOR_CHARACTERISTIC_UUID = "d4e5f6a7-8192-0123-defa-456789012345";
+const SET_HEADING_CHARACTERISTIC_UUID = "5927abe5-01ef-4bf0-bb09-6167ff47c52d";
 
 const bleManager = new BleManager();
 
@@ -162,6 +164,29 @@ function useBLE() {
     }
   };
 
+  const setHeading = async () => {
+    if (connectedDevice) {
+      const message: SetHeadingOptionsProto = {
+        headingMode: HeadingModeProto.hold,
+        value: 123,
+        autoActivation: true,
+        isNoDrift: false,
+      };
+
+      const binary: Uint8Array = SetHeadingOptionsProto.encode(message).finish();
+      const base64Value = Buffer.from(binary).toString("base64");
+
+      connectedDevice.writeCharacteristicWithResponseForService(
+        AUTOPILOT_SERVICE_UUID,
+        SET_HEADING_CHARACTERISTIC_UUID,
+        base64Value
+      );
+    } else {
+      setColor("orange");
+      console.log("No Device Connected to set heading");
+    }
+  };
+
   return {
     connectToDevice,
     allDevices,
@@ -171,6 +196,7 @@ function useBLE() {
     scanForPeripherals,
     startStreamingData,
     activateAnchor,
+    setHeading,
   };
 }
 

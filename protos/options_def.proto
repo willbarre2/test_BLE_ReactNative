@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+  
+enum HeadingModeProto {
+  waypoint = 0;
+  hold = 1;
+}
+ 
+message SetHeadingOptionsProto {
+  HeadingModeProto heading_mode = 1;
+  uint32 value = 2;
+  bool auto_activation = 3;
+  google.protobuf.BoolValue is_no_drift = 4;
+}
+ 
+message SetSpeedOptionsProto {
+  double value = 1;
+}

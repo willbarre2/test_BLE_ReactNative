@@ -6,7 +6,16 @@ import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
-  const { allDevices, connectToDevice, color, sog, requestPermissions, scanForPeripherals, activateAnchor } = useBLE();
+  const {
+    allDevices,
+    connectToDevice,
+    color,
+    sog,
+    requestPermissions,
+    scanForPeripherals,
+    activateAnchor,
+    setHeading,
+  } = useBLE();
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
   const scanForDevices = async () => {
@@ -33,10 +42,13 @@ export default function HomeScreen() {
         </TouchableOpacity>
       )}
       {color === "yellowgreen" && (
-        <View>
+        <View style={{ gap: 10 }}>
           <Text style={styles.sogText}>SOG: {sog}</Text>
           <TouchableOpacity onPress={activateAnchor} style={styles.ctaButton}>
             <Text style={styles.ctaButtonText}>⚓</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={setHeading} style={styles.ctaButton}>
+            <Text style={styles.ctaButtonText}>🧭</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -62,7 +74,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     height: 50,
     marginHorizontal: 20,
-    marginVertical: 10,
     marginBottom: 5,
     borderRadius: 8,
     fontSize: 18,
