@@ -18,12 +18,40 @@ function byteArrayToFloat64(bytes: Uint8Array, littleEndian = true): number {
   return view.getFloat64(0, littleEndian);
 }
 
-const NAVIGATION_SERVICE_UUID = "d1c8b45c-677e-4326-b41e-64d332adc505";
-const SOG_CHARACTERISTIC_UUID = "c24848da-81ac-4c14-a72d-b124ae44f9f2";
+const BLUENAV_BT_BASE = "0000-1000-8000-5786DB67EEC5";
 
-const AUTOPILOT_SERVICE_UUID = "fc7de86b-25a9-4701-a808-642cd57c6e45";
-const SET_ANCHOR_CHARACTERISTIC_UUID = "d4e5f6a7-8192-0123-defa-456789012345";
-const SET_HEADING_CHARACTERISTIC_UUID = "5927abe5-01ef-4bf0-bb09-6167ff47c52d";
+// 16-bit service IDs - Unique IDs for each service, range 0x1000-0x1FFF
+enum ServiceIDs {
+  BATTERY = 0x1001,
+  PROPULSION = 0x1002,
+  AUTOPILOT = 0x1003,
+  NAVIGATION = 0x1004,
+  VERSION = 0x1005,
+}
+
+// 16-bit characteristic IDs - Unique IDs for each characteristic, range 0x2000-0x2FFF
+enum CharacteristicIDs {
+  BATTERY_LEVEL = 0x2001,
+  PROPULSION_RPM = 0x2002,
+  SOG = 0x2003,
+  SET_HEADING = 0x2004,
+  SET_SPEED = 0x2005,
+  SET_ANCHOR = 0x2006,
+  SET_DPS = 0x2007,
+  SET_SLIDING = 0x2008,
+  SET_DOCKING = 0x2009,
+  UNSET_HEADING = 0x200a,
+  UNSET_SPEED = 0x200b,
+  UNSET_ANCHOR = 0x200c,
+  UNSET_DPS = 0x200d,
+  UNSET_SLIDING = 0x200e,
+  UNSET_DOCKING = 0x200f,
+}
+
+const buildUUID = (id: ServiceIDs | CharacteristicIDs) => {
+  const hexString = id.toString(16).padStart(8, "0").toUpperCase();
+  return `${hexString}-${BLUENAV_BT_BASE}`;
+};
 
 const bleManager = new BleManager();
 
@@ -140,7 +168,11 @@ function useBLE() {
   const startStreamingData = async (device: Device) => {
     if (device) {
       setColor("yellowgreen");
-      device.monitorCharacteristicForService(NAVIGATION_SERVICE_UUID, SOG_CHARACTERISTIC_UUID, onDataUpdate);
+      device.monitorCharacteristicForService(
+        buildUUID(ServiceIDs.NAVIGATION),
+        buildUUID(CharacteristicIDs.SOG),
+        onDataUpdate
+      );
     } else {
       setColor("orange");
       console.log("No Device Connected");
@@ -154,8 +186,8 @@ function useBLE() {
       new DataView(buffer).setFloat64(0, 1, true); // little endian
       const base64Value = Buffer.from(buffer).toString("base64");
       connectedDevice.writeCharacteristicWithResponseForService(
-        AUTOPILOT_SERVICE_UUID,
-        SET_ANCHOR_CHARACTERISTIC_UUID,
+        buildUUID(ServiceIDs.AUTOPILOT),
+        buildUUID(CharacteristicIDs.SET_ANCHOR),
         base64Value
       );
     } else {
@@ -177,8 +209,8 @@ function useBLE() {
       const base64Value = Buffer.from(binary).toString("base64");
 
       connectedDevice.writeCharacteristicWithResponseForService(
-        AUTOPILOT_SERVICE_UUID,
-        SET_HEADING_CHARACTERISTIC_UUID,
+        buildUUID(ServiceIDs.AUTOPILOT),
+        buildUUID(CharacteristicIDs.SET_HEADING),
         base64Value
       );
     } else {
