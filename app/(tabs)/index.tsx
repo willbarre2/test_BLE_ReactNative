@@ -3,11 +3,12 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { BatteryGauge } from "@/components/BatteryGauge";
 import DeviceConnectionModal from "@/components/DeviceConnectionModal";
 import useBLE from "@/hooks/useBLE";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
   const {
+    checkBluetoothState,
     allDevices,
     connectToDevice,
     color,
@@ -18,6 +19,16 @@ export default function HomeScreen() {
     setHeading,
   } = useBLE();
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+
+  useEffect(() => {
+    checkBluetoothState().then((isEnabled) => {
+      if (!isEnabled) {
+        console.log("Bluetooth is not enabled");
+      } else {
+        console.log("Bluetooth is enabled");
+      }
+    });
+  }, []);
 
   const scanForDevices = async () => {
     const isPermissionsEnabled = await requestPermissions();

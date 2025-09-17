@@ -4,7 +4,7 @@ import { PermissionsAndroid, Platform } from "react-native";
 
 import * as ExpoDevice from "expo-device";
 
-import { BleError, BleManager, Characteristic, Device } from "react-native-ble-plx";
+import { BleError, BleManager, Characteristic, Device, State } from "react-native-ble-plx";
 
 import { HeadingModeProto, SetHeadingOptionsProto } from "@/protos/options_def";
 import { Buffer } from "buffer";
@@ -60,6 +60,14 @@ function useBLE() {
   const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
   const [color, setColor] = useState("white");
   const [sog, setSog] = useState("--");
+
+  async function checkBluetoothState() {
+    const state = await bleManager.state();
+    if (state === State.PoweredOn) {
+      return true;
+    }
+    return false;
+  }
 
   const requestAndroid31Permissions = async () => {
     const bluetoothScanPermission = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN, {
@@ -220,6 +228,7 @@ function useBLE() {
   };
 
   return {
+    checkBluetoothState,
     connectToDevice,
     allDevices,
     color,
