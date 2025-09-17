@@ -1,5 +1,6 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
+import { BatteryGauge } from "@/components/BatteryGauge";
 import DeviceConnectionModal from "@/components/DeviceConnectionModal";
 import useBLE from "@/hooks/useBLE";
 import { useState } from "react";
@@ -37,9 +38,12 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: color }]}>
       {color === "white" && (
-        <TouchableOpacity onPress={openModal} style={styles.ctaButton}>
-          <Text style={styles.ctaButtonText}>Scan</Text>
-        </TouchableOpacity>
+        <View>
+          <TouchableOpacity onPress={openModal} style={styles.ctaButton}>
+            <Text style={styles.ctaButtonText}>Scan</Text>
+          </TouchableOpacity>
+          <BatteryGauge level={70} />
+        </View>
       )}
       {color === "yellowgreen" && (
         <View style={{ gap: 10 }}>
